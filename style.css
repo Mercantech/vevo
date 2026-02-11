@@ -1,0 +1,462 @@
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #1e1e2e;
+  --surface: #2d2d3d;
+  --surface-hover: #36364a;
+  --text: #cdd6f4;
+  --text-dim: #a6adc8;
+  --accent: #89b4fa;
+  --accent-soft: #89b4fa33;
+  --node-opgave: #cba6f7;
+  --node-kompetence: #a6e3a1;
+  --edge: #6c708644;
+  --border: #45475a;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.app {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 0.75rem;
+}
+
+header h1 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 0.15rem 0;
+  color: var(--text);
+}
+
+.subtitle {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+main {
+  display: flex;
+  align-items: stretch;
+  min-height: 0;
+  --sidebar-width: 380px;
+}
+
+.left-panel {
+  width: var(--sidebar-width);
+  min-width: 240px;
+  max-width: 90%;
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem 1.25rem;
+  align-content: start;
+  container-type: inline-size;
+  container-name: sidebar;
+}
+
+.panel-col {
+  min-width: 0;
+}
+
+/* I 2-kolonne layout spænder "Tildel point" over fuld bredde; i 1 og 3 kolonner er den bare en celle */
+@container sidebar (max-width: 619px) {
+  .panel-col-point {
+    grid-column: 1 / -1;
+  }
+}
+
+.resize-handle {
+  width: 10px;
+  flex-shrink: 0;
+  cursor: col-resize;
+  background: var(--border);
+  margin: 0 2px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+.resize-handle:hover,
+.resize-handle:active {
+  background: var(--accent);
+}
+.resize-handle::after {
+  content: '';
+  display: block;
+  width: 2px;
+  height: 24px;
+  margin: 50vh 0 0 4px;
+  transform: translateY(-50%);
+  background: var(--text-dim);
+  border-radius: 1px;
+  opacity: 0.6;
+}
+
+.graph-panel {
+  flex: 1;
+  min-width: 280px;
+  min-height: 0;
+}
+
+@media (max-width: 768px) {
+  main {
+    flex-direction: column;
+  }
+  .left-panel {
+    width: 100%;
+    max-width: none;
+    grid-template-columns: 1fr;
+  }
+  .panel-col-point {
+    grid-column: 1;
+  }
+  .resize-handle {
+    display: none;
+  }
+}
+
+.panel {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 1rem;
+  border: 1px solid var(--border);
+}
+
+.panel h2 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  color: var(--text-dim);
+}
+
+.diagram-forklaring {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin: 0 0 0.75rem 0;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.card input[type="text"],
+.card input[type="number"],
+.card select,
+.card textarea {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
+.card textarea {
+  resize: vertical;
+  min-height: 36px;
+  max-height: 60px;
+}
+
+.card button {
+  padding: 0.4rem 0.75rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.card button:hover {
+  filter: brightness(1.1);
+}
+
+/* Point-redigering: opgave + felter per kompetence */
+.point-redigering label:first-of-type {
+  margin-bottom: 0.25rem;
+}
+
+.point-hint {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin: 0.35rem 0 0.35rem 0;
+}
+
+.point-ingen {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin: 0;
+  padding: 0.5rem 0;
+}
+
+.point-kompetencer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
+.point-k-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 100px;
+}
+
+.point-k-label {
+  font-size: 0.85rem;
+  width: 5em;
+  flex-shrink: 0;
+}
+
+.point-k-input {
+  width: 3rem;
+  padding: 0.35rem 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.point-k-input::placeholder {
+  color: var(--text-dim);
+  opacity: 0.8;
+}
+
+.point-fjern {
+  flex-shrink: 0;
+  padding: 0.2rem 0.4rem;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.point-fjern:hover {
+  color: #f38ba8;
+}
+
+.point-fjern--inaktiv {
+  opacity: 0.5;
+  cursor: default;
+  text-decoration: none;
+}
+
+.point-fjern--inaktiv:hover {
+  color: var(--text-dim);
+}
+
+.liste {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  margin-bottom: 0.25rem;
+}
+
+.liste li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  margin-bottom: 0.2rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+
+.liste li:hover {
+  background: var(--surface-hover);
+}
+
+.liste li .navn {
+  font-weight: 500;
+}
+
+.liste li .beskrivelse {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: 0.1rem;
+}
+
+.liste li button {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 0.25rem;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.liste li button:hover {
+  color: #f38ba8;
+}
+
+/* Graph panel */
+.graph-panel {
+  min-height: 500px;
+}
+
+.graph-wrap {
+  position: relative;
+  width: 100%;
+  height: 520px;
+  background: var(--bg);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+#graph-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+#graph-canvas:active {
+  cursor: grabbing;
+}
+
+#graph-legend {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  display: flex;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+#graph-legend span {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+#graph-legend .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+#graph-legend .dot.opgave {
+  background: var(--node-opgave);
+}
+
+#graph-legend .dot.kompetence {
+  background: var(--node-kompetence);
+}
+
+#graph-legend .scale-info {
+  margin-left: auto;
+}
+
+/* Kompetence-detalje (klik på kompetence i diagrammet) */
+.kompetence-detalje {
+  margin-top: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  position: relative;
+}
+
+.kompetence-detalje[hidden] {
+  display: none !important;
+}
+
+.kompetence-detalje-luk {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.kompetence-detalje-luk:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.kompetence-detalje h3 {
+  font-size: 1.1rem;
+  margin: 0 2rem 0.25rem 0;
+  color: var(--accent);
+}
+
+.kompetence-detalje-niveau {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  margin: 0 0 0.75rem 0;
+}
+
+.kompetence-detalje-intro {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  margin: 0 0 0.5rem 0;
+}
+
+.kompetence-detalje ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.kompetence-detalje li {
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+.kompetence-detalje li:last-child {
+  border-bottom: none;
+}
+
+.kompetence-detalje .opgave-point {
+  color: var(--accent);
+  font-weight: 600;
+  margin-left: 0.35rem;
+}
+
+.kompetence-detalje .opgave-beskrivelse {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-top: 0.15rem;
+  margin-left: 0;
+}
+
+.label {
+  font-size: 0.75rem;
+  fill: var(--text-dim);
+}

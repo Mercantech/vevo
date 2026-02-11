@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kompetenceoverblik – Skill overview</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Kompetenceoverblik</h1>
+      <p class="subtitle">Tildel point fra opgaver til kompetencer – diagrammet viser hvor langt du er med hver kompetence</p>
+    </header>
+
+    <main id="main-layout">
+      <section class="panel left-panel" id="left-panel">
+        <div class="panel-col">
+          <h2>Opgaver</h2>
+          <form id="form-opgave" class="card">
+            <input type="text" id="opgave-navn" placeholder="Opgavens navn" required>
+            <textarea id="opgave-beskrivelse" placeholder="Kort beskrivelse (valgfri)" rows="2"></textarea>
+            <button type="submit">Tilføj opgave</button>
+          </form>
+          <ul id="liste-opgaver" class="liste"></ul>
+        </div>
+        <div class="panel-col">
+          <h2>Kompetencer</h2>
+          <form id="form-kompetence" class="card">
+            <input type="text" id="kompetence-navn" placeholder="Kompetencens navn" required>
+            <button type="submit">Tilføj kompetence</button>
+          </form>
+          <ul id="liste-kompetencer" class="liste"></ul>
+        </div>
+        <div class="panel-col panel-col-point">
+          <h2>Tildel point</h2>
+          <div class="point-redigering card">
+            <label>Opgave</label>
+            <select id="point-opgave"></select>
+            <p class="point-hint">Point 1–10. 0 eller Fjern = opgaven bedømmer ikke denne kompetence (tæller ikke i gennemsnit).</p>
+            <div id="point-kompetencer-wrap" class="point-kompetencer"></div>
+          </div>
+        </div>
+      </section>
+      <div class="resize-handle" id="resize-handle" role="separator" aria-label="Træk for at ændre bredde mellem menu og diagram"></div>
+      <section class="panel graph-panel" id="graph-panel">
+        <h2>Skill-overview diagram</h2>
+        <p class="diagram-forklaring">Niveau per kompetence (0–10) beregnet fra gennemsnit af point fra opgaver.</p>
+        <div class="graph-wrap">
+          <canvas id="graph-canvas"></canvas>
+          <div id="graph-legend"></div>
+        </div>
+        <div id="kompetence-detalje" class="kompetence-detalje" aria-live="polite" hidden>
+          <button type="button" class="kompetence-detalje-luk" aria-label="Luk">×</button>
+          <h3 id="kompetence-detalje-titel"></h3>
+          <p id="kompetence-detalje-niveau" class="kompetence-detalje-niveau"></p>
+          <p class="kompetence-detalje-intro">Point fra opgaver:</p>
+          <ul id="kompetence-detalje-liste"></ul>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
