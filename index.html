@@ -15,7 +15,7 @@
 
     <main id="main-layout">
       <section class="panel left-panel" id="left-panel">
-        <div class="panel-col">
+        <div class="panel-col panel-col-opgaver">
           <h2>Opgaver</h2>
           <form id="form-opgave" class="card">
             <input type="text" id="opgave-navn" placeholder="Opgavens navn" required>
@@ -24,28 +24,35 @@
           </form>
           <ul id="liste-opgaver" class="liste"></ul>
         </div>
-        <div class="panel-col">
-          <h2>Kompetencer</h2>
-          <form id="form-kompetence" class="card">
-            <input type="text" id="kompetence-navn" placeholder="Kompetencens navn" required>
-            <button type="submit">Tilføj kompetence</button>
-          </form>
-          <ul id="liste-kompetencer" class="liste"></ul>
-        </div>
-        <div class="panel-col panel-col-point">
-          <h2>Tildel point</h2>
-          <div class="point-redigering card">
-            <label>Opgave</label>
-            <select id="point-opgave"></select>
-            <p class="point-hint">Point 1–10. 0 eller Fjern = opgaven bedømmer ikke denne kompetence (tæller ikke i gennemsnit).</p>
-            <div id="point-kompetencer-wrap" class="point-kompetencer"></div>
+        <div class="panel-col-right">
+          <div class="panel-col">
+            <h2>Kompetencer</h2>
+            <form id="form-kompetence" class="card">
+              <input type="text" id="kompetence-navn" placeholder="Kompetencens navn" required>
+              <button type="submit">Tilføj kompetence</button>
+            </form>
+            <ul id="liste-kompetencer" class="liste"></ul>
+          </div>
+          <div class="panel-col panel-col-point">
+            <h2>Tildel point</h2>
+            <div class="point-redigering card">
+              <label>Opgave</label>
+              <select id="point-opgave"></select>
+              <p class="point-hint">Point 1–10. 0 eller Fjern = opgaven bedømmer ikke denne kompetence (tæller ikke i gennemsnit).</p>
+              <div id="point-kompetencer-wrap" class="point-kompetencer"></div>
+            </div>
           </div>
         </div>
       </section>
       <div class="resize-handle" id="resize-handle" role="separator" aria-label="Træk for at ændre bredde mellem menu og diagram"></div>
       <section class="panel graph-panel" id="graph-panel">
-        <h2>Skill-overview diagram</h2>
-        <p class="diagram-forklaring">Niveau per kompetence (0–10) beregnet fra gennemsnit af point fra opgaver.</p>
+        <div class="graph-panel-header">
+          <div class="graph-panel-title-wrap">
+            <h2>Skill-overview diagram</h2>
+            <p class="diagram-forklaring">Niveau per kompetence (0–10) beregnet fra gennemsnit af point fra opgaver.</p>
+          </div>
+          <button type="button" class="btn-export-open" id="btn-export-open" title="Eksporter eller del med elev">Eksporter / del med elev</button>
+        </div>
         <div class="graph-wrap">
           <canvas id="graph-canvas"></canvas>
           <div id="graph-legend"></div>
@@ -60,6 +67,75 @@
       </section>
     </main>
   </div>
+
+  <!-- Fuldskærms elev-visning (ved delt link – read-only, interaktiv graf) -->
+  <main id="elev-fullpage" class="elev-fullpage" hidden>
+    <header class="elev-fullpage-header">
+      <h1>Dit kompetenceoverblik</h1>
+      <p class="elev-subtitle">Dette overblik viser dine vurderede opgaver og niveau per kompetence. Klik på diagrammet for at se detaljer.</p>
+    </header>
+    <div class="elev-fullpage-content">
+      <section class="elev-fullpage-graph">
+        <div class="elev-graph-wrap elev-fullpage-graph-wrap">
+          <canvas id="elev-fullpage-canvas"></canvas>
+          <div id="elev-fullpage-legend" class="elev-fullpage-legend"></div>
+        </div>
+        <div id="elev-fullpage-detalje" class="kompetence-detalje" aria-live="polite" hidden>
+          <button type="button" class="kompetence-detalje-luk" id="elev-fullpage-detalje-luk" aria-label="Luk">×</button>
+          <h3 id="elev-fullpage-detalje-titel"></h3>
+          <p id="elev-fullpage-detalje-niveau" class="kompetence-detalje-niveau"></p>
+          <p class="kompetence-detalje-intro">Point fra opgaver:</p>
+          <ul id="elev-fullpage-detalje-liste"></ul>
+        </div>
+      </section>
+      <section class="elev-opgaver elev-fullpage-opgaver">
+        <h2>Opgaver og point</h2>
+        <div id="elev-fullpage-opgaver-liste"></div>
+      </section>
+    </div>
+    <footer class="elev-fullpage-footer">Genereret fra Kompetenceoverblik</footer>
+  </main>
+
+  <!-- Modal: Eksporter / del med elev -->
+  <div class="modal-overlay" id="export-modal" hidden aria-modal="true" aria-labelledby="export-modal-title">
+    <div class="modal" role="dialog">
+      <button type="button" class="modal-luk" id="export-modal-luk" aria-label="Luk">×</button>
+      <h2 id="export-modal-title" class="modal-titel">Eksporter / del med elev</h2>
+      <p class="export-intro">Send linket eller filen til eleven, så de kan se deres kompetenceoverblik.</p>
+      <label for="export-elev-navn">Elevens navn (kommer med i overblikket)</label>
+      <input type="text" id="export-elev-navn" class="export-elev-navn" placeholder="Fx fornavn eller fornavn efternavn" autocomplete="off">
+      <p class="export-til-navn" id="export-til-navn" aria-live="polite" hidden></p>
+      <label for="export-link">Link (kopier og send til elev)</label>
+      <div class="export-link-row">
+        <input type="text" id="export-link" readonly>
+        <button type="button" id="btn-copy-link">Kopier</button>
+      </div>
+      <div class="export-buttons">
+        <button type="button" id="btn-download-html" class="btn-export-format">Download som HTML</button>
+        <button type="button" id="btn-download-pdf" class="btn-export-format">Download som PDF</button>
+      </div>
+      <button type="button" id="btn-se-som-elev" class="btn-se-som-elev">Se som elev</button>
+    </div>
+  </div>
+
+  <!-- Modal: Elev-visning (read-only) -->
+  <div class="modal-overlay modal-elev" id="elev-view-modal" hidden aria-modal="true" aria-labelledby="elev-modal-title">
+    <div class="modal modal-elev-indhold" role="dialog">
+      <button type="button" class="modal-luk" id="elev-modal-luk" aria-label="Luk">×</button>
+      <h2 id="elev-modal-title" class="modal-titel">Dit kompetenceoverblik</h2>
+      <p class="elev-subtitle">Dette overblik viser dine vurderede opgaver og niveau per kompetence.</p>
+      <div class="elev-graph-wrap">
+        <canvas id="elev-graph-canvas"></canvas>
+        <div id="elev-graph-legend"></div>
+      </div>
+      <section class="elev-opgaver" id="elev-opgaver-section">
+        <h3>Opgaver og point</h3>
+        <div id="elev-opgaver-liste"></div>
+      </section>
+      <p class="elev-footer">Genereret fra Kompetenceoverblik</p>
+    </div>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>

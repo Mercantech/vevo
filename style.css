@@ -72,8 +72,36 @@ main {
   min-width: 0;
 }
 
-/* I 2-kolonne layout spænder "Tildel point" over fuld bredde; i 1 og 3 kolonner er den bare en celle */
-@container sidebar (max-width: 619px) {
+/* Wrapperen (Kompetencer + Tildel point) deltager i grid som sine børn, så vi stadig får 3 celler i bred layout */
+.panel-col-right {
+  display: contents;
+}
+
+/* Ved 2 kolonner: én række – kolonne 1 = Opgaver (scroll), kolonne 2 = Kompetencer + Tildel point (højden af rækken = kun kolonne 2) */
+@container sidebar (min-width: 420px) and (max-width: 619px) {
+  .left-panel {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: auto;
+    align-content: start;
+  }
+  .panel-col-right {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+  }
+  .panel-col-opgaver {
+    grid-column: 1;
+    grid-row: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+}
+
+/* Ved smal sidebar (1 kolonne): Tildel point under de andre */
+@container sidebar (max-width: 419px) {
   .panel-col-point {
     grid-column: 1 / -1;
   }
@@ -110,6 +138,27 @@ main {
   min-height: 0;
 }
 
+.graph-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.graph-panel-title-wrap {
+  min-width: 0;
+}
+
+.graph-panel-title-wrap h2 {
+  margin: 0 0 0.15rem 0;
+}
+
+.graph-panel-title-wrap + .btn-export-open {
+  flex-shrink: 0;
+}
+
 @media (max-width: 768px) {
   main {
     flex-direction: column;
@@ -144,7 +193,26 @@ main {
 .diagram-forklaring {
   font-size: 0.85rem;
   color: var(--text-dim);
-  margin: 0 0 0.75rem 0;
+  margin: 0 0 0 0;
+}
+
+/* Eksporter-knap ved diagram (flyttet fra header) */
+.btn-export-open {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-hover);
+  color: var(--text);
+  font-weight: 500;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.btn-export-open:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .card {
@@ -459,4 +527,348 @@ main {
 .label {
   font-size: 0.75rem;
   fill: var(--text-dim);
+}
+
+/* Modal: Eksporter / del med elev */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.modal-overlay[hidden] {
+  display: none;
+}
+
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  padding: 1.25rem 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.modal-luk {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.modal-luk:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.modal-titel {
+  font-size: 1.1rem;
+  margin: 0 2rem 0.5rem 0;
+  color: var(--text);
+}
+
+.export-intro {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin: 0 0 0.75rem 0;
+}
+
+.export-elev-navn {
+  display: block;
+  width: 100%;
+  margin: 0.25rem 0 0.75rem 0;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.export-elev-navn::placeholder {
+  color: var(--text-dim);
+}
+
+.export-til-navn {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--accent);
+  margin: 0 0 0.5rem 0;
+}
+
+.export-til-navn[hidden] {
+  display: none;
+}
+
+.export-link-row {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0.25rem 0 0.75rem 0;
+}
+
+.export-link-row input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.8rem;
+}
+
+.export-link-row #btn-copy-link {
+  flex-shrink: 0;
+  padding: 0.4rem 0.75rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.export-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.btn-export-format {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.btn-export-format:hover {
+  filter: brightness(1.1);
+}
+
+.btn-se-som-elev {
+  margin-top: 0.75rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  cursor: pointer;
+  width: 100%;
+}
+
+.btn-se-som-elev:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+/* Elev-visning modal (større, med diagram og liste) */
+.modal-elev .modal {
+  max-width: 90vw;
+  width: 720px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-elev-indhold .elev-graph-wrap {
+  height: 380px;
+  margin: 0.5rem 0;
+}
+
+.modal-elev-indhold .elev-opgaver {
+  margin-top: 0.5rem;
+}
+
+.modal-elev-indhold .elev-footer {
+  margin-top: 0.75rem;
+  margin-bottom: 0;
+}
+
+/* Fuldskærms elev-visning (ved delt link) – read-only rapport, interaktiv graf */
+.elev-fullpage {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--bg);
+  padding: 0;
+}
+
+.elev-fullpage[hidden] {
+  display: none !important;
+}
+
+.elev-fullpage-header {
+  flex-shrink: 0;
+  text-align: center;
+  padding: 1.25rem 1.5rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.elev-fullpage-header h1 {
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+  color: var(--text);
+}
+
+.elev-fullpage-header .elev-subtitle {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.elev-fullpage-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 1000px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 1.5rem;
+  min-height: 0;
+}
+
+.elev-fullpage-graph {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.elev-fullpage-graph-wrap {
+  flex: 1;
+  min-height: 360px;
+  height: 100%;
+  max-height: 65vh;
+}
+
+.elev-fullpage-graph-wrap canvas {
+  cursor: pointer;
+}
+
+.elev-fullpage-legend {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-top: 0.25rem;
+}
+
+.elev-fullpage-opgaver {
+  flex-shrink: 0;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.elev-fullpage-opgaver h2 {
+  font-size: 1rem;
+  margin: 0 0 0.75rem 0;
+  color: var(--text-dim);
+}
+
+.elev-fullpage .kompetence-detalje {
+  flex-shrink: 0;
+}
+
+.elev-fullpage-footer {
+  flex-shrink: 0;
+  text-align: center;
+  padding: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+/* Elev-visning (read-only) */
+.elev-view {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  margin-top: 0.5rem;
+}
+
+.elev-view h2 {
+  font-size: 1.1rem;
+  margin: 0 0 0.25rem 0;
+  color: var(--text);
+}
+
+.elev-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin: 0 0 0.75rem 0;
+}
+
+.elev-graph-wrap {
+  width: 100%;
+  height: 520px;
+  background: var(--bg);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  margin: 0.75rem 0;
+  position: relative;
+}
+
+.elev-graph-wrap #elev-graph-legend {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.elev-opgaver h3 {
+  font-size: 0.95rem;
+  margin: 0.75rem 0 0.5rem 0;
+  color: var(--text-dim);
+}
+
+.elev-opgave-kort {
+  padding: 0.6rem 0.75rem;
+  margin-bottom: 0.5rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.elev-opgave-kort strong {
+  color: var(--accent);
+}
+
+.elev-opgave-beskr,
+.elev-opgave-pt {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin: 0.35rem 0 0 0;
+}
+
+.elev-footer {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-top: 1rem;
 }
